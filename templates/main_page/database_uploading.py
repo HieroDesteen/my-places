@@ -1,6 +1,4 @@
 from my_places.models import Places, Types
-from django.shortcuts import get_object_or_404
-from django.http import Http404
 
 
 def main_upload(response):
@@ -22,11 +20,6 @@ def main_upload(response):
         p.save()
         if 'types' in res:
             for type in res['types']:
-                try:
-                    t = get_object_or_404(Types, type=type)
-                    p.types.add(t)
-                except Http404:
-                    t = Types()
-                    t.type = type
-                    t.save()
-                    p.types.add(t)
+                t, created = Types.objects.get_or_create(type=type)
+                t.save()
+                p.types.add(t)
