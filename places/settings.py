@@ -120,3 +120,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'my_places.CustomUser'
+os.environ['GOOGLE_API_KEY'] = 'AIzaSyDbkfSHOrrs59qQj4I1WVb0ORj3Wll8oqI'
