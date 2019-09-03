@@ -2,7 +2,7 @@ from my_places.models import Places, Types
 import urllib.request
 import urllib.parse
 import json
-import os
+import places.settings as settings
 
 url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 
@@ -11,40 +11,40 @@ class MyPlaces:
     def __init__(self, location, radius=5000):
         self.radius = radius
         self.location = location
-        self.places = []
-        self.main_upload()
+        self.token = None
 
     def __iter__(self):
-        i = 0
-        while i < len(self.places):
-            yield self.places[i]
-            i += 1
+        flag = True
+        while flag:
+            places, flag = self.main_upload()
+            yield places
 
-    def url_creation(self, token):
-        if token is None:
+    def url_creation(self):
+        if self.token is None:
             r_params = {
                 'radius': self.radius,
-                'key': os.environ['GOOGLE_API_KEY'],
+                'key': settings.GOOGLE_API_KEY,
                 'location': self.location,
             }
         else:
             r_params = {
-                'key': os.environ['GOOGLE_API_KEY'],
-                'pagetoken': token
+                'key': settings.GOOGLE_API_KEY,
+                'pagetoken': self.token
             }
         data = urllib.parse.urlencode(r_params)
         full_url = url + '?' + data
         return full_url
 
-    def create_response(self, token):
-        full_url = self.url_creation(token)
+    def create_response(self):
+        full_url = self.url_creation()
         with urllib.request.urlopen(full_url) as f:
             resp = json.load(f)
             return resp
 
-    def main_upload(self, token=None):
-        response = self.create_response(token)
+    def main_upload(self):
+        response = self.create_response()
         results = response['results']
+        places = []
         for res in results:
             p = Places()
             p.name = res['name']
@@ -65,6 +65,9 @@ class MyPlaces:
                     t, created = Types.objects.get_or_create(type=type)
                     t.save()
                     p.types.add(t)
-            self.places.append((tuple(p, res['types'])))
+            places.append((tuple(p, res['types'])))
         if 'next_page_token' in response:
-            self.main_upload(response['next_page_token'])
+            self.token = response['next_page_token']
+            return places, True
+        else:
+            return places, False

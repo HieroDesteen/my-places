@@ -24,7 +24,7 @@ SECRET_KEY = '48n7&ap9b3c_ufe8cz9))x6*haqagv&439_#9hi2((@!@^bbmv'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -120,4 +120,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'my_places.CustomUser'
-os.environ['GOOGLE_API_KEY'] = 'AIzaSyDbkfSHOrrs59qQj4I1WVb0ORj3Wll8oqI'
+GOOGLE_API_KEY = 'AIzaSyDbkfSHOrrs59qQj4I1WVb0ORj3Wll8oqI'
