@@ -7,6 +7,28 @@ import places.settings as settings
 url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 
 
+def save_place(place):
+    p = Places()
+    p.name = place['name']
+    p.place_id = place['place_id']
+    if 'price_level' in place:
+        p.price_level = place['price_level']
+    if 'rating' in place:
+        p.rating = place['rating']
+    if 'vicinity' in place:
+        p.vicinity = place['vicinity']
+    if 'formatted_address' in place:
+        p.formatted_address = place['formatted_address']
+    if 'permanently_closed' in place:
+        p.permanently_closed = place['permanently_closed']
+    p.save()
+    if 'types' in place:
+        for type in plae['types']:
+            t, created = Types.objects.get_or_create(type=type)
+            t.save()
+            p.types.add(t)
+
+
 class MyPlaces:
     def __init__(self, location, radius=5000):
         self.radius = radius
@@ -24,7 +46,7 @@ class MyPlaces:
             r_params = {
                 'radius': self.radius,
                 'key': settings.GOOGLE_API_KEY,
-                'location': self.location,
+                'location': (str(self.location[0]) + ', ' + str(self.location[1])),
             }
         else:
             r_params = {
@@ -45,27 +67,9 @@ class MyPlaces:
         response = self.create_response()
         results = response['results']
         places = []
-        for res in results:
-            p = Places()
-            p.name = res['name']
-            p.place_id = res['place_id']
-            if 'price_level' in res:
-                p.price_level = res['price_level']
-            if 'rating' in res:
-                p.rating = res['rating']
-            if 'vicinity' in res:
-                p.vicinity = res['vicinity']
-            if 'formatted_address' in res:
-                p.formatted_address = res['formatted_address']
-            if 'permanently_closed' in res:
-                p.permanently_closed = res['permanently_closed']
-            p.save()
-            if 'types' in res:
-                for type in res['types']:
-                    t, created = Types.objects.get_or_create(type=type)
-                    t.save()
-                    p.types.add(t)
-            places.append((tuple(p, res['types'])))
+        for place in results:
+            save_place(place)
+            places.append(place)
         if 'next_page_token' in response:
             self.token = response['next_page_token']
             return places, True

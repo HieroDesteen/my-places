@@ -5,21 +5,26 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
 
-# @login_required(login_url='/login')
+@login_required(login_url='logging page')
 def index(request):
-    # location = '48.5609974,35.142040099999996'
-    # radius = 50000
-    # my_places = r.MyPlaces(location, radius)
-    # for place in my_places:
-    #     pass
-    if request.user.is_authenticated:
-        return HttpResponse("Залогинен")
-    else:
-        return HttpResponse("Не залогинен")
+    if request.method == 'POST':
+        location = tuple((request.POST.get('lat', request.POST.get('lng'))))
+        if 'radius' in request.POST:
+            radius = request.POST.get('radius')
+        my_places = r.MyPlaces(location, radius)
+        for place in my_places:
+            pass
+
+    return render(request, "index.html")
+
+
+def logout_request(request):
+    logout(request)
+    return redirect('login')
 
 
 def login_view(request):
-    if 'username' in request.POST:
+    if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
