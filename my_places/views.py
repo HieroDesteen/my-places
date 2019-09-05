@@ -27,9 +27,9 @@ def index(request):
 
 
 @login_required(login_url='logging page')
-def places(request, context={}):
+def places(request):
     ret = r.ReturnPlaces(request.user.username)
-    context['residences'] = ret.return_residences()
+    context = {'residences': ret.return_residences()}
     if request.method == 'POST':
         residence = request.POST.get('residence')
         context['places'] = ret.places_by_res(residence)
