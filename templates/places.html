@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Places</title>
+</head>
+<body>
+
+<form method="post">{% csrf_token %}
+    {%for residence in residences%}
+    <input type="radio" name='residence' value={{residence}}>{{residence}}<br>
+    {%endfor%}
+    <br>
+    <input type="submit" value="Select">
+</form>
+
+<br>
+<br>
+<a href="/">Find new places</a>
+<br>
+<br>
+<a href="logout">logout</a>
+<br>
+<br>
+<br>
+<br>
+<ul>
+{%for place in places%}
+    <li>{{place}}</li>
+     {% endfor %}
+</ul>
+</body>
+</html>

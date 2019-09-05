@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.gis.db import models as m
 
 
 class CustomUser(AbstractUser):
@@ -31,3 +30,10 @@ class Places(models.Model):
     formatted_address = models.TextField(blank=True, null=True)
     permanently_closed = models.BooleanField(blank=True, null=True)
     types = models.ManyToManyField(Types, blank=True)
+
+
+class CurrentResidence(models.Model):
+    current_residence = models.TextField(unique=True)
+    last_synchronized = models.DateTimeField(auto_now=True)
+    places = models.ManyToManyField(Places, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
