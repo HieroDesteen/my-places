@@ -4,18 +4,22 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from my_places.forms import CustomUserCreationForm
-
+from my_places.models import CurrentResidence, Places
 
 @login_required(login_url='logging page')
 def index(request):
     if request.method == 'POST':
         location = str(request.POST.get('lat')) + ',' + str(request.POST.get('lng'))
-        res = r.CurResidence(location, request.user.username).create_location()
-        if 'radius' in request.POST:
+        res = CurrentResidence.create_residence(location, request.user.username)
+        if 'radius' in request.POST and request.POST['radius'] != '':
             radius = request.POST.get('radius')
-            my_places = r.MyPlaces(location, res, radius)
+            my_places = r.ApiResponse(location, radius)
         else:
-            my_places = r.MyPlaces(location, res)
+            my_places = r.ApiResponse(location)
+        for places in my_places:
+            for place in places:
+                r.SavingIntoDB.save_place(place, res)
+
         my_places.main_upload()
         return redirect('places page')
         # for placess in my_places:
@@ -28,11 +32,10 @@ def index(request):
 
 @login_required(login_url='logging page')
 def places(request):
-    ret = r.ReturnPlaces(request.user.username)
-    context = {'residences': ret.return_residences()}
+    context = {'residences': CurrentResidence.residences_by_user(request.user.username)}
     if request.method == 'POST':
         residence = request.POST.get('residence')
-        context['places'] = ret.places_by_res(residence)
+        context['places'] = Places.places_by_residence(residence)
 
     return render(request, "places.html", context=context)
 
