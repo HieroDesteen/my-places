@@ -6,21 +6,24 @@ from django.contrib.auth.decorators import login_required
 from my_places.forms import CustomUserCreationForm
 from my_places.models import CurrentResidence, Places
 
+
 @login_required(login_url='logging page')
 def index(request):
     if request.method == 'POST':
         location = str(request.POST.get('lat')) + ',' + str(request.POST.get('lng'))
-        res = CurrentResidence.create_residence(location, request.user.username)
+        res = CurrentResidence.create_residence(location, request.user)
         if 'radius' in request.POST and request.POST['radius'] != '':
             radius = request.POST.get('radius')
-            my_places = r.ApiResponse(location, radius)
+            my_places = r.ApiResponse2(location, radius)
         else:
-            my_places = r.ApiResponse(location)
-        for places in my_places:
-            for place in places:
-                r.SavingIntoDB.save_place(place, res)
+            my_places = r.ApiResponse2(location)
 
-        my_places.main_upload()
+        my_places_list = list(my_places)
+
+        for place in my_places_list:
+            r.SavingIntoDB().save_place(place, res)
+
+        # my_places.main_upload()
         return redirect('places page')
         # for placess in my_places:
         #     data = {'places': placess}
