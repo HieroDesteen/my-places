@@ -53,4 +53,7 @@ class CurrentResidence(models.Model):
 
     @staticmethod
     def residences_by_user(username):
-        return list(CurrentResidence.objects.filter(user__username=username))
+        residences = []
+        for residence in CurrentResidence.objects.filter(user__username=username):
+            residences.append(residence.current_residence)
+        return residences

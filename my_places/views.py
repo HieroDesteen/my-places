@@ -66,10 +66,11 @@ def user_register(request):
         print(new_user)
         if new_user.is_valid():
             new_user.save()
-            user = authenticate(request, username=new_user.cleaned_data['username'], password=new_user.cleaned_data['password2'])
+            user = authenticate(request, username=new_user.cleaned_data['username'],
+                                password=new_user.cleaned_data['password2'])
             login(request, user)
             return redirect('main page')
         else:
-            data['errors'] = new_user.errors['password2']
+            data['errors'] = new_user.errors
 
     return render(request, 'register.html', context=data)
