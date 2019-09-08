@@ -35,10 +35,12 @@ def index(request):
 
 @login_required(login_url='logging page')
 def places(request):
-    context = {'residences': CurrentResidence.residences_by_user(request.user.username)}
+    context = {'residences': [residence.current_residence for residence in
+                              CurrentResidence.objects.filter(user__username=request.user.username)]}
     if request.method == 'POST':
         residence = request.POST.get('residence')
-        context['places'] = Places.places_by_residence(residence)
+        context['places'] = [place.name for place in
+                             Places.objects.filter(currentresidence__current_residence=residence)]
 
     return render(request, "places.html", context=context)
 
@@ -66,7 +68,6 @@ def user_register(request):
     data = {'form': CustomUserCreationForm()}
     if request.method == 'POST':
         new_user = CustomUserCreationForm(request.POST)
-        print(new_user)
         if new_user.is_valid():
             new_user.save()
             user = authenticate(request, username=new_user.cleaned_data['username'],

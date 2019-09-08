@@ -31,13 +31,6 @@ class Places(models.Model):
     permanently_closed = models.BooleanField(blank=True, null=True)
     types = models.ManyToManyField(Types, blank=True)
 
-    @staticmethod
-    def places_by_residence(residence):
-        places = []
-        for place in Places.objects.filter(currentresidence__current_residence=residence):
-            places.append(place.name)
-        return places  # Пока возвращает только имена, так удобней
-
 
 class CurrentResidence(models.Model):
     current_residence = models.TextField(unique=True)
@@ -50,10 +43,3 @@ class CurrentResidence(models.Model):
         residence = CurrentResidence(current_residence=location, user=username)
         residence.save()
         return residence
-
-    @staticmethod
-    def residences_by_user(username):
-        residences = []
-        for residence in CurrentResidence.objects.filter(user__username=username):
-            residences.append(residence.current_residence)
-        return residences

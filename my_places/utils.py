@@ -9,24 +9,24 @@ url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 
 
 class SavingIntoDB:
-    def save_place(self, place, c):
+    def save_place(self, places, c):
         possible_fields = ['price_level', 'rating', 'vicinity', 'name', 'formatted_address', 'permanently_closed', ]
-        values = {field: place[field] for field in possible_fields if field in place}
-        p, created = Places.objects.get_or_create(place_id=place['place_id'], defaults=values)
+        values = {field: places[field] for field in possible_fields if field in places}
+        place, created = Places.objects.get_or_create(place_id=places['place_id'], defaults=values)
         if not created:
-            if 'types' in place:
-                for type in place['types']:
+            if 'types' in places:
+                for type in places['types']:
                     t, created = Types.objects.get_or_create(type=type)
                     if not created:
                         t.save()
-                    p.types.add(t)
+                    place.types.add(t)
         else:
             for key, value in values.items():
-                if value != getattr(p, key):
-                    setattr(p, key, value)
-            p.save()
+                if value != getattr(place, key):
+                    setattr(place, key, value)
+            place.save()
 
-        c.places.add(p)
+        c.places.add(place)
 
 
 # class ApiResponse:
